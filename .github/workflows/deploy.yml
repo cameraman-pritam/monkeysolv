@@ -1,0 +1,40 @@
+name: Build and Deploy Web UI to Hosting Branch
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install Dependencies
+        working-directory: ./web-ui
+        run: bun install
+
+      - name: Build Web UI
+        working-directory: ./web-ui
+        run: bun run build
+
+      - name: Deploy Build Artifacts to 'hosting' Branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./web-ui/dist
+          publish_branch: hosting
+          force_orphan: true
