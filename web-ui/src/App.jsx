@@ -1,26 +1,28 @@
 import React, { useState } from "react"
-import { Outlet, useNavigate, useLocation } from "react-router"
 import { useTheme } from "@/hooks/useTheme"
 import { useWindowLock } from "@/hooks/useWindowLock"
 import { Header } from "@/components/shell/Header"
 import { Navbar } from "@/components/shell/Navbar"
 import { Footer } from "@/components/shell/Footer"
 import { BootLoader } from "@/components/screens/BootLoader"
-import { AlertTriangle, Lock, RotateCcw } from "lucide-react"
+import { SprintScreen } from "@/components/screens/SprintScreen"
+import { PracticeScreen } from "@/components/screens/PracticeScreen"
+import { LevelsScreen } from "@/components/screens/LevelsScreen"
+import { LeaderboardScreen } from "@/components/screens/LeaderboardScreen"
+import { FeedScreen } from "@/components/screens/FeedScreen"
+import { SettingsScreen } from "@/components/screens/SettingsScreen"
+import { AboutScreen } from "@/components/screens/AboutScreen"
+import { AlertTriangle, Lock, ShieldAlert, RotateCcw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
 
-export function Layout() {
+export default function App() {
   const { theme, toggleTheme } = useTheme()
   const [isBooting, setIsBooting] = useState(true)
+  const [currentScreen, setCurrentScreen] = useState("practice")
   const [isWindowLockEnabled, setIsWindowLockEnabled] = useState(false)
-  
-  const navigate = useNavigate()
-  const location = useLocation()
-  
-  // Extract active screen from path (e.g. "/sprint" -> "sprint", "/" -> "practice")
-  const activeScreen = location.pathname.substring(1) || "practice"
 
+  // Custom Window Lock Engine
   const {
     strikes,
     isWarningOpen,
@@ -35,6 +37,9 @@ export function Layout() {
     onTerminate: () => {
       setIsWindowLockEnabled(false)
     },
+    onWarning: (strike) => {
+      // Called on strike 1
+    }
   })
 
   const handleStartSprintLock = () => {
@@ -47,8 +52,7 @@ export function Layout() {
   }
 
   const handleNavigate = (screenId) => {
-    const path = screenId === "practice" ? "/" : `/${screenId}`
-    navigate(path)
+    setCurrentScreen(screenId)
     window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
@@ -59,41 +63,79 @@ export function Layout() {
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors selection:bg-primary/20">
       
-      {/* GLOBAL HEADER */}
+      {/* 1. PERSISTENT GLOBAL HEADER */}
       <Header
         theme={theme}
         toggleTheme={toggleTheme}
-        currentScreen={activeScreen}
+        currentScreen={currentScreen}
         onNavigate={handleNavigate}
         watermark={watermark}
       />
 
-      {/* GLOBAL NAVBAR */}
+      {/* 2. PERSISTENT GLOBAL NAVBAR */}
       <Navbar
-        activeScreen={activeScreen}
+        activeScreen={currentScreen}
         onNavigate={handleNavigate}
       />
 
-      {/* ROUTE CONTENT RENDERED VIA OUTLET */}
+      {/* 3. DYNAMIC SCREEN ROUTE CONTENT */}
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 lg:px-8 py-6">
-        <Outlet context={{
-          watermark,
-          onStartLock: handleStartSprintLock,
-          onStopLock: handleStopSprintLock,
-          onNavigate: handleNavigate,
-          onStartSprint: () => handleNavigate("sprint"),
-          theme,
-          toggleTheme,
-        }} />
+        {currentScreen === "sprint" && (
+          <SprintScreen
+            watermark={watermark}
+            onStartLock={handleStartSprintLock}
+            onStopLock={handleStopSprintLock}
+            onNavigate={handleNavigate}
+          />
+        )}
+
+        {currentScreen === "practice" && (
+          <PracticeScreen
+            onStartSprint={() => handleNavigate("sprint")}
+          />
+        )}
+
+        {currentScreen === "levels" && (
+          <LevelsScreen
+            onStartSprint={() => handleNavigate("sprint")}
+          />
+        )}
+
+        {currentScreen === "leaderboard" && (
+          <LeaderboardScreen
+            onStartSprint={() => handleNavigate("sprint")}
+          />
+        )}
+
+        {currentScreen === "feed" && (
+          <FeedScreen
+            onStartSprint={() => handleNavigate("sprint")}
+          />
+        )}
+
+        {currentScreen === "settings" && (
+          <SettingsScreen
+            theme={theme}
+            toggleTheme={toggleTheme}
+            watermark={watermark}
+          />
+        )}
+
+        {currentScreen === "about" && (
+          <AboutScreen
+            onStartSprint={() => handleNavigate("sprint")}
+            watermark={watermark}
+          />
+        )}
       </main>
 
-      {/* GLOBAL FOOTER */}
+      {/* 4. PERSISTENT GLOBAL FOOTER */}
       <Footer
         watermark={watermark}
         onNavigate={handleNavigate}
       />
 
-      {/* STRIKE 1 WARNING DIALOG */}
+      {/* 5. STRIKE 1 WARNING DIALOG (FULL SCREEN BLURRED MODAL) */}
       <Dialog open={isWarningOpen} onOpenChange={() => {}}>
         <DialogContent className="sm:max-w-md border-amber-500 bg-background/95 backdrop-blur-md">
           <DialogHeader>
@@ -121,7 +163,7 @@ export function Layout() {
         </DialogContent>
       </Dialog>
 
-      {/* STRIKE 2 TERMINATION OVERLAY */}
+      {/* 6. STRIKE 2 TERMINATION OVERLAY */}
       {isTerminated && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/95 text-white p-6 font-mono select-none animate-in fade-in duration-300">
           <div className="max-w-md text-center space-y-6">
@@ -145,7 +187,7 @@ export function Layout() {
             <Button
               onClick={() => {
                 resetLock()
-                navigate("/")
+                setCurrentScreen("practice")
               }}
               className="w-full font-bold bg-primary hover:bg-primary/90 text-primary-foreground py-6 text-base"
             >

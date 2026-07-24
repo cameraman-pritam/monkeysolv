@@ -1,34 +1,38 @@
-import React from "react";
-import { createRoot } from "react-dom/client";
-import { createBrowserRouter, RouterProvider } from "react-router";
-import { Layout } from "./layout/layout";
-import "./index.css";
-
-const Home = () => <h1 className="text-2xl font-bold">Home Page Content</h1>;
-const About = () => <h1 className="text-2xl font-bold">About Page Content</h1>;
-const Dashboard = () => (
-  <h1 className="text-2xl font-bold">Dashboard Page Content</h1>
-);
-const NotFound = () => (
-  <h1 className="text-2xl font-bold text-destructive">404 - Page Not Found</h1>
-);
+import React from "react"
+import { createRoot } from "react-dom/client"
+import { createBrowserRouter, RouterProvider } from "react-router"
+import { Layout } from "./layout/layout"
+import { SprintScreen } from "@/components/screens/SprintScreen"
+import { PracticeScreen } from "@/components/screens/PracticeScreen"
+import { LevelsScreen } from "@/components/screens/LevelsScreen"
+import { LeaderboardScreen } from "@/components/screens/LeaderboardScreen"
+import { FeedScreen } from "@/components/screens/FeedScreen"
+import { SettingsScreen } from "@/components/screens/SettingsScreen"
+import { AboutScreen } from "@/components/screens/AboutScreen"
+import { NotFoundScreen } from "@/components/screens/NotFoundScreen"
+import "./index.css"
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Layout />,
+    errorElement: <NotFoundScreen />,
     children: [
-      { index: true, element: <Home /> },
-      { path: "about", element: <About /> },
-      { path: "dashboard", element: <Dashboard /> },
-      { path: "*", element: <NotFound /> },
+      { index: true, element: <PracticeScreen /> },
+      { path: "practice", element: <PracticeScreen /> },
+      { path: "sprint", element: <SprintScreen /> },
+      { path: "levels", element: <LevelsScreen /> },
+      { path: "leaderboard", element: <LeaderboardScreen /> },
+      { path: "feed", element: <FeedScreen /> },
+      { path: "settings", element: <SettingsScreen /> },
+      { path: "about", element: <AboutScreen /> },
+      { path: "*", element: <NotFoundScreen /> },
     ],
   },
-]);
+])
 
-// 3. Mount into the DOM tree
 createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <RouterProvider router={router} />
-  </React.StrictMode>,
-);
+  </React.StrictMode>
+)
