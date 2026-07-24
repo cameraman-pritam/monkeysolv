@@ -1,5 +1,10 @@
 {
   "name": "web-ui",
+  "homepage": "https://cameraman-pritam.github.io/monkeysolv/",
+  "author": {
+    "name": "Pritam Santra",
+    "email": "mantusantra591@gmail.com"
+  },
   "private": true,
   "version": "0.0.0",
   "type": "module",
