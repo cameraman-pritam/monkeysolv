@@ -1,6 +1,7 @@
-import Navbar from "@/components/parts/navbar"
-import React from "react"
-import {  Outlet } from "react-router" // [Note: imported from 'react-router' in v7]
+import { Footer } from "@/components/footer";
+import Navbar from "@/components/parts/navbar";
+import React from "react";
+import { Outlet } from "react-router"; // [Note: imported from 'react-router' in v7]
 
 export function Layout() {
   return (
@@ -12,13 +13,13 @@ export function Layout() {
 
       {/* RENDER DYNAMIC PAGES HERE */}
       <main className="flex-1 w-full max-w-7xl mx-auto p-6">
-        <Outlet /> 
+        <Outlet />
       </main>
 
       {/* GLOBAL FOOTER */}
       <footer className="w-full border-t py-6 text-center text-xs text-muted-foreground bg-card">
-        &copy; {new Date().getFullYear()} MyBrand. All rights reserved.
+        <Footer />
       </footer>
     </div>
-  )
+  );
 }
